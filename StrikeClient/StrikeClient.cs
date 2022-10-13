@@ -48,7 +48,6 @@ namespace StrikeClient
                         Message = errorBody
                     });
 
-
                     return default;
                 }
 
