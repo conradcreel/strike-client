@@ -1,1 +1,2 @@
-# StrikeConsole
+# .NET Client for Strike API
+Strongly-typed proxy for the Strike API with HTTP abstractions that can easily be injected into a service. See more about the Strike API [here](https://strike.me/developer/) 
