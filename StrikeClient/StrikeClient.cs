@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
@@ -19,12 +20,13 @@ namespace StrikeClient
             _Configuration = configuration;
             _Http = http;
 
+            _Http.DefaultRequestHeaders.Add("Accept", _Accept);
             _Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(_Scheme, _Configuration.ApiKey);
         }
 
         private void DoNothing(StrikeApiResponse apiResponse) { }
 
-        protected async Task<TResponse?> SendPostAsync<TRequest, TResponse>(string url, TRequest? data, Action<StrikeApiResponse>? logger = null)
+        private async Task<TResponse?> SendAsync<TResponse>(HttpRequestMessage httpRequestMessage, Action<StrikeApiResponse>? logger = null)
         {
             if (logger == null)
             {
@@ -33,13 +35,6 @@ namespace StrikeClient
 
             try
             {
-                var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, url);
-                httpRequestMessage.Headers.Add("Accept", _Accept);
-
-                var requestBody = JsonSerializer.Serialize(data, SerializationUtility.SerializerOptions);
-
-                httpRequestMessage.Content = new StringContent(requestBody, _Encoding, _ContentType);
-
                 var response = await _Http.SendAsync(httpRequestMessage).ConfigureAwait(continueOnCapturedContext: false);
 
                 if (!response.IsSuccessStatusCode)
@@ -72,47 +67,20 @@ namespace StrikeClient
             return default;
         }
 
+        protected async Task<TResponse?> SendPostAsync<TRequest, TResponse>(string url, TRequest? data, Action<StrikeApiResponse>? logger = null)
+        {
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, url);
+            var requestBody = JsonSerializer.Serialize(data, SerializationUtility.SerializerOptions);
+            httpRequestMessage.Content = new StringContent(requestBody, _Encoding, _ContentType);
+
+            return await SendAsync<TResponse>(httpRequestMessage, logger).ConfigureAwait(continueOnCapturedContext: false);
+        }
+
         protected async Task<TResponse?> SendGetAsync<TResponse>(string url, Action<StrikeApiResponse>? logger = null)
         {
-            if (logger == null)
-            {
-                logger = DoNothing;
-            }
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url);
 
-            try
-            {
-                var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url);
-                httpRequestMessage.Headers.Add("Accept", _Accept);
-
-                var response = await _Http.SendAsync(httpRequestMessage).ConfigureAwait(continueOnCapturedContext: false);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    var errorBody = await response.Content.ReadAsStringAsync();
-
-                    logger(new StrikeApiResponse
-                    {
-                        IsSuccess = false,
-                        StatusCode = (int)response.StatusCode,
-                        Message = errorBody
-                    });
-
-                    return default;
-                }
-
-                var responseBody = await response.Content.ReadAsStringAsync();
-
-                return JsonSerializer.Deserialize<TResponse>(responseBody);
-            }
-            catch (Exception ex)
-            {
-                logger(new StrikeApiResponse
-                {
-                    Exception = ex
-                });
-            }
-
-            return default;
+            return await SendAsync<TResponse>(httpRequestMessage, logger).ConfigureAwait(continueOnCapturedContext: false);
         }
     }
 }
