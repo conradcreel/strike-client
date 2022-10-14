@@ -1,3 +1,5 @@
+using StrikeClient;
+
 namespace StrikeWebhook
 {
     public class Program
@@ -7,6 +9,14 @@ namespace StrikeWebhook
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+
+            builder.Services.AddSingleton(new StrikeConfiguration
+            {
+                ApiKey = builder.Configuration["Strike:Key"],
+                Endpoint = builder.Configuration["Strike:Endpoint"]
+            });
+
+            builder.Services.AddHttpClient<StrikeClient.StrikeClient>();
 
             builder.Services.AddControllers();
 

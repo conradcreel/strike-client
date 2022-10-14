@@ -1,10 +1,13 @@
-﻿using System.Net.Http;
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
 namespace StrikeClient
 {
+    /// <summary>
+    /// Base StrikeClient. 
+    /// TODO: consider moving logger outside of methods and at the instance level
+    /// </summary>
     public partial class StrikeClient
     {
         private const string _ContentType = "application/json";
@@ -20,6 +23,7 @@ namespace StrikeClient
             _Configuration = configuration;
             _Http = http;
 
+            _Http.BaseAddress = new Uri(configuration.Endpoint);
             _Http.DefaultRequestHeaders.Add("Accept", _Accept);
             _Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(_Scheme, _Configuration.ApiKey);
         }
@@ -37,21 +41,19 @@ namespace StrikeClient
             {
                 var response = await _Http.SendAsync(httpRequestMessage).ConfigureAwait(continueOnCapturedContext: false);
 
+                var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(continueOnCapturedContext: false);
+
+                logger(new StrikeApiResponse
+                {
+                    IsSuccess = response.IsSuccessStatusCode,
+                    StatusCode = (int)response.StatusCode,
+                    Message = responseBody
+                });
+
                 if (!response.IsSuccessStatusCode)
                 {
-                    var errorBody = await response.Content.ReadAsStringAsync();
-
-                    logger(new StrikeApiResponse
-                    {
-                        IsSuccess = false,
-                        StatusCode = (int)response.StatusCode,
-                        Message = errorBody
-                    });
-
                     return default;
                 }
-
-                var responseBody = await response.Content.ReadAsStringAsync();
 
                 return JsonSerializer.Deserialize<TResponse>(responseBody);
             }
