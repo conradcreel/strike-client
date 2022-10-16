@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using StrikeClient.Request;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
@@ -71,8 +72,12 @@ namespace StrikeClient
         protected async Task<TResponse?> SendPostAsync<TRequest, TResponse>(string url, TRequest? data, Action<StrikeApiResponse>? logger = null)
         {
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, url);
-            var requestBody = JsonSerializer.Serialize(data, SerializationUtility.SerializerOptions);
-            httpRequestMessage.Content = new StringContent(requestBody, _Encoding, _ContentType);
+
+            if (data is not EmptyBodyRequest)
+            {
+                var requestBody = JsonSerializer.Serialize(data, SerializationUtility.SerializerOptions);
+                httpRequestMessage.Content = new StringContent(requestBody, _Encoding, _ContentType);
+            }
 
             return await SendAsync<TResponse>(httpRequestMessage, logger).ConfigureAwait(continueOnCapturedContext: false);
         }

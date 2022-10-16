@@ -1,4 +1,5 @@
 using StrikeClient;
+using StrikeClient.Infrastructure;
 
 namespace StrikeWebhook
 {
@@ -10,13 +11,7 @@ namespace StrikeWebhook
 
             // Add services to the container.
 
-            builder.Services.AddSingleton(new StrikeConfiguration
-            {
-                ApiKey = builder.Configuration["Strike:Key"],
-                Endpoint = builder.Configuration["Strike:Endpoint"]
-            });
-
-            builder.Services.AddHttpClient<StrikeClient.StrikeClient>();
+            StrikeContainerRegistration.Register(builder.Services, builder.Configuration);
 
             builder.Services.AddControllers();
 
