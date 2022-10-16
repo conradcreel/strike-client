@@ -9,12 +9,10 @@ namespace StrikeWebhook.Controllers
     public class StrikeWebhookController : ControllerBase
     {
         private readonly ILogger<StrikeWebhookController> _logger;
-        private readonly StrikeConfiguration _StrikeConfiguration;
 
-        public StrikeWebhookController(ILogger<StrikeWebhookController> logger, StrikeConfiguration strikeConfiguration)
+        public StrikeWebhookController(ILogger<StrikeWebhookController> logger)
         {
             _logger = logger;
-            _StrikeConfiguration = strikeConfiguration;
         }
 
         private void Log(StrikeApiResponse apiResponse)
