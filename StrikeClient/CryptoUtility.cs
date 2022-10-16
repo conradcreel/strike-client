@@ -23,7 +23,7 @@ namespace StrikeClient
         /// <param name="data">The data they hashed</param>
         /// <param name="secret">The secret used when creating this subscription. By convention this client uses the API key</param>
         /// <returns></returns>
-        public static bool ValidateStripeSignature(string challenge, string data, string secret)
+        public static bool ValidateStrikeSignature(string challenge, string data, string secret)
         {
             var computed = SHA256(data, secret);
 
