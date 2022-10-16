@@ -38,10 +38,10 @@ namespace StrikeWebhook.Controllers
             switch (webhook.EventType)
             {
                 case "invoice.created":
-                    // TODO
+                    _logger.LogInformation($"Invoice created with ID: {webhook.entityData.EntityId}");
                     break;
                 case "invoice.updated":
-                    // TODO
+                    _logger.LogInformation($"Invoice updated with ID: {webhook.entityData.EntityId}");
                     break;
                 default:
                     break;
