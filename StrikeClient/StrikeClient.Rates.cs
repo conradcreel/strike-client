@@ -8,11 +8,11 @@ namespace StrikeClient
     /// </summary>
     public partial class StrikeClient
     {
-        public async Task<ConversionRate?> GetExchangeRates(Action<StrikeApiResponse>? logger = null)
+        public async Task<List<ConversionRate>?> GetExchangeRates(Action<StrikeApiResponse>? logger = null)
         {
             string path = "v1/rates/ticker";
 
-            return await SendGetAsync<ConversionRate>(path, logger)
+            return await SendGetAsync<List<ConversionRate>>(path, logger)
                         .ConfigureAwait(continueOnCapturedContext: false);
         }
     }

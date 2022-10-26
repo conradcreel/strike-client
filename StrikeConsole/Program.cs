@@ -26,7 +26,7 @@ namespace StrikeConsole
             ConfigHttp(config);
             var client = new StrikeClient.StrikeClient(config, _Http);
 
-            
+            /*
             await GetAccountProfile(client).ConfigureAwait(continueOnCapturedContext: false);
 
             var invoice = await CreateInvoiceForUser(client).ConfigureAwait(continueOnCapturedContext: false);
@@ -36,6 +36,10 @@ namespace StrikeConsole
             }
 
             var quote = await CreateQuote(invoice.InvoiceId, client).ConfigureAwait(continueOnCapturedContext: false);
+            */
+
+            var rates = await client.GetExchangeRates(Log).ConfigureAwait(continueOnCapturedContext: false);
+            Console.WriteLine("DONE");
         }
 
         private static void ConfigHttp(StrikeConfiguration config)
